@@ -404,10 +404,6 @@ const ModelSelector = () => {
   const hasMessage = messages.length > 0
 
   const selectedModelData = availableModels.find((model) => model.id === selectedModel)
-  console.log("Selected model data:", selectedModelData);
-  console.log("Selected model", selectedModel);
-  console.log("Available models in ModelSelector:", availableModels);
-  console.log("Rendering ModelSelector");
 
   return (
     <Select value={selectedModel} onValueChange={setSelectedModel}>
