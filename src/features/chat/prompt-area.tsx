@@ -48,6 +48,8 @@ import { ModelProviderLogo } from "@/components/model-provider-logo"
 import { Tooltip } from "@/components/tooltip-wrapper"
 import { FileUpload, FileUploadContent, FileUploadTrigger } from "@/components/ui/file-upload"
 import { useChatStore } from "./stores/chat-store-provider"
+import { AiModel } from "./types"
+import { getAvailableModels } from "./api/action"
 
 const PromptArea = () => {
   return (
@@ -72,6 +74,7 @@ type PromptAreaContextType = {
   setAgentId: (id: string | null) => void
   selectedModel: string
   setSelectedModel: (model: string) => void
+  availableModels: AiModel[]
 }
 
 const [PromptAreaContextProvider, usePromptAreaContext] = createContext<PromptAreaContextType>({
@@ -82,13 +85,47 @@ const [PromptAreaContextProvider, usePromptAreaContext] = createContext<PromptAr
 })
 
 const PromptAreaProvider = ({ children }: { children: React.ReactNode }) => {
-  const [selectedModel, setSelectedModel] = useState(AVAILABLE_MODELS[0].id)
-  const [isSearchEnabled, setIsSearchEnabled] = useState(false)
-  const [agentId, setAgentId] = useQueryState("agent")
+  const [availableModels, setAvailableModels] = useState<AiModel[]>([]);
+  const [selectedModel, setSelectedModel] = useState("");
+  const [isSearchEnabled, setIsSearchEnabled] = useState(false);
+  const [agentId, setAgentId] = useQueryState("agent");
+
+    useEffect(() => {
+    let isMounted = true;
+
+    const fetchModels = async () => {
+      try {
+        const models = await getAvailableModels();
+        if (!isMounted) return;
+        setAvailableModels(models);
+        if (models.length > 0) {
+          setSelectedModel((prev) => prev || models[0].id || "");
+        }
+      } catch (error) {
+        console.error("Failed to fetch available models:", error);
+      }
+    };
+
+    fetchModels();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (availableModels.length === 0) {
+      if (selectedModel) setSelectedModel("");
+      return;
+    }
+    const exists = availableModels.some((m) => m.id === selectedModel);
+    if (!exists) {
+      setSelectedModel(availableModels[0].id);
+    }
+  }, [availableModels, selectedModel]);
 
   return (
     <PromptAreaContextProvider
-      value={{ selectedModel, setSelectedModel, isSearchEnabled, setIsSearchEnabled, agentId, setAgentId }}>
+      value={{ selectedModel, setSelectedModel, availableModels, isSearchEnabled, setIsSearchEnabled, agentId, setAgentId }}>
       {children}
     </PromptAreaContextProvider>
   )
@@ -361,12 +398,16 @@ const PromptAreaInput = () => {
 /* -------------------------------------------------------------------------- */
 
 const ModelSelector = () => {
-  const { selectedModel, setSelectedModel } = usePromptAreaContext()
-  const groups = Array.from(new Set(AVAILABLE_MODELS.map((model) => model.group)))
+  const { selectedModel, setSelectedModel, availableModels } = usePromptAreaContext()
+  const groups = Array.from(new Set(availableModels.map((model) => model.group)))
   const messages = useChatStore((state) => state.messages)
   const hasMessage = messages.length > 0
 
-  const selectedModelData = AVAILABLE_MODELS.find((model) => model.id === selectedModel)
+  const selectedModelData = availableModels.find((model) => model.id === selectedModel)
+  console.log("Selected model data:", selectedModelData);
+  console.log("Selected model", selectedModel);
+  console.log("Available models in ModelSelector:", availableModels);
+  console.log("Rendering ModelSelector");
 
   return (
     <Select value={selectedModel} onValueChange={setSelectedModel}>
@@ -382,7 +423,7 @@ const ModelSelector = () => {
         {groups.map((group) => (
           <SelectGroup key={group}>
             <SelectLabel className="px-3 py-2 text-xs text-secondary-foreground">{group}</SelectLabel>
-            {AVAILABLE_MODELS.filter((model) => model.group === group).map((model) => (
+            {availableModels.filter((model) => model.group === group).map((model) => (
               <SelectItem key={model.id} value={model.id} className="h-14">
                 <div className="flex h-full items-start gap-1.5">
                   <ModelProviderLogo provider={model.provider} className="mt-1" />

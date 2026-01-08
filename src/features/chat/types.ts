@@ -66,3 +66,11 @@ export type MessageAPIResponse = {
   total: number
   has_more: boolean
 }
+
+export type AiModel = {
+  id: string
+  name: string
+  description: string
+  group: string
+  provider: string
+}
