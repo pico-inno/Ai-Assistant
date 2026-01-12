@@ -2,7 +2,7 @@ import "server-only"
 import { authServerAPI } from "@/lib/auth/server"
 import { ApplicationError } from "@/lib/error"
 import { chatStreamRequestBody, chatStreamRequestBodySchema } from "../schema"
-import { MessageAPIResponse } from "../types"
+import { AiModel, MessageAPIResponse } from "../types"
 
 async function streamMessage(request: Request): Promise<Response> {
   let requestBody: chatStreamRequestBody
@@ -38,7 +38,20 @@ async function getMessages(id: string): Promise<MessageAPIResponse> {
   return messages
 }
 
+async function getAvailableModels(): Promise<AiModel[]> {
+  const models = await authServerAPI.fetchWithAuth<AiModel[]>(
+    `${process.env.EXTERNAL_API_URL}/models`,
+    {
+      headers: { "Content-Type": "application/json" },
+      parseResponse: "json",
+    },
+  )
+  return models;
+}
+
+
 export const chatServerAPI = {
   streamMessage,
   getMessages,
+  getAvailableModels,
 }
