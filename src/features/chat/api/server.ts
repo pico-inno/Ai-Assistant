@@ -46,17 +46,7 @@ async function getAvailableModels(): Promise<AiModel[]> {
       parseResponse: "json",
     },
   )
-  console.log("Fetched models:", models);
-  /* TODO: Adjust the DTO with backend
-  added group and provider fields 
-  */
-  return models.map((model) => {
-    return {
-      ...model,
-      group: model.name.includes("gpt") ? "OpenAI" : "Other",
-      provider: model.name.includes("gpt") ? "openai" : "other",
-    }
-  });
+  return models;
 }
 
 
