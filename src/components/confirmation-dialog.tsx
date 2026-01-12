@@ -1,7 +1,5 @@
 "use client"
 
-// This file is not being used right now. It was created to make confirmation dialogs reusable.
-// Please uncomment it when it is needed, or we might remove it in the future if there is no use case.
 import React from "react"
 import {
   AlertDialog,
