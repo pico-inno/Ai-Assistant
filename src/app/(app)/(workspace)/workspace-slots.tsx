@@ -23,13 +23,14 @@ const MENU_VIEWS: Record<MenuRoute, RouteConfig> = {
       })),
     ),
   },
-  agents: {
-    component: lazy(() =>
-      import("@/features/agents/agents-list").then((m) => ({
-        default: m.AgentsList,
-      })),
-    ),
-  },
+  // Remove Agents from sidebar for now
+  // agents: {
+  //   component: lazy(() =>
+  //     import("@/features/agents/agents-list").then((m) => ({
+  //       default: m.AgentsList,
+  //     })),
+  //   ),
+  // },
 } as const
 
 const HEADER_VIEWS: Record<MenuRoute, RouteConfig<JSX.Element>> = {

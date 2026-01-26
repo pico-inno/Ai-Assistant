@@ -14,24 +14,32 @@ const BASE_AGENTS: Record<string, Agent> = {
     name: "ERP Agent",
     description:
       "Specialized in enterprise resource planning systems, financial modules, and business process management",
+    model: "gpt-4-turbo",
+    instructions: "",
     icon: "Database",
   },
   ecommerce_support: {
     id: "ecommerce-support-agent",
     name: "Ecommerce Support Agent",
     description: "Assists with online store operations, order management, and ecommerce platform support",
+    model: "gpt-4-turbo",
+    instructions: "",
     icon: "ShoppingCart",
   },
   customer_support: {
     id: "customer-support-agent",
     name: "Customer Support Agent",
     description: "Handles customer inquiries, troubleshooting, and provides personalized assistance",
+    model: "gpt-4-turbo",
+    instructions: "",
     icon: "MessageSquare",
   },
   bergop_customer_support: {
     id: "bergop-customer-support-agent",
     name: "Bergop Customer Support Agent",
     description: "Specialized support agent for Bergop-specific products, services, and customer needs",
+    model: "gpt-4-turbo",
+    instructions: "",
     icon: "Headphones",
   },
 }
@@ -43,7 +51,7 @@ export const MOCK_AGENT_LIST: AgentListAPIResponse = {
 const AGENT_DETAILS: Record<string, AgentDetail> = {
   "erp-agent": {
     ...BASE_AGENTS.erp,
-    system_instruction: `You are an ERP Agent with deep expertise in enterprise resource planning systems and business process management.
+    instructions: `You are an ERP Agent with deep expertise in enterprise resource planning systems and business process management.
 
 Your responsibilities include:
 - Assisting with ERP system navigation across modules (Finance, HR, Supply Chain, Manufacturing)
@@ -59,7 +67,7 @@ Always prioritize accuracy, provide step-by-step guidance when needed, and escal
   },
   "ecommerce-support-agent": {
     ...BASE_AGENTS.ecommerce_support,
-    system_instruction: `You are an Ecommerce Support Agent specialized in online retail operations and digital commerce platforms.
+    instructions: `You are an Ecommerce Support Agent specialized in online retail operations and digital commerce platforms.
 
 Your core functions:
 - Guide users through order processing, tracking, and fulfillment workflows
@@ -76,7 +84,7 @@ Be clear and solution-oriented, provide step-by-step guidance for platform-speci
   },
   "customer-support-agent": {
     ...BASE_AGENTS.customer_support,
-    system_instruction: `You are a Customer Support Agent dedicated to providing helpful, empathetic, and efficient assistance to customers.
+    instructions: `You are a Customer Support Agent dedicated to providing helpful, empathetic, and efficient assistance to customers.
 
 Your key objectives:
 - Respond to customer inquiries with patience, clarity, and professionalism
@@ -92,7 +100,7 @@ Always use positive, supportive language. Focus on understanding the customer's 
   },
   "bergop-customer-support-agent": {
     ...BASE_AGENTS.bergop_customer_support,
-    system_instruction: `You are a Bergop Customer Support Agent with specialized knowledge of Bergop's products, services, and customer ecosystem.
+    instructions: `You are a Bergop Customer Support Agent with specialized knowledge of Bergop's products, services, and customer ecosystem.
 
 Your responsibilities include:
 - Providing expert assistance on Bergop-specific features, functionalities, and best practices

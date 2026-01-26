@@ -53,14 +53,14 @@ const AgentDetailsForm = ({
   description,
   icon,
   model,
-  system_instruction,
+  instructions,
 }: {
   id: string
   name: string
   description: string
-  icon: string
+  icon?: string | null
   model: string
-  system_instruction: string
+  instructions: string
 }) => {
   return (
     <form className="w-full space-y-6">
@@ -94,7 +94,7 @@ const AgentDetailsForm = ({
             <Label htmlFor="agent-icon" className="text-sm font-medium text-secondary-foreground">
               Icon
             </Label>
-            <Select value={icon} disabled>
+            <Select value={icon ?? ""} disabled>
               <SelectTrigger id="agent-icon" className="bg-background" disabled>
                 <SelectValue placeholder="Select an icon" />
               </SelectTrigger>
@@ -157,7 +157,7 @@ const AgentDetailsForm = ({
             <Textarea
               id="agent-system-instruction"
               className="min-h-36 bg-background disabled:pointer-events-none"
-              value={system_instruction}
+              value={instructions}
               disabled
               readOnly
             />

@@ -25,13 +25,15 @@ const AgentDetail = async (props: { params: Promise<{ id: string }> }) => {
 
   const agentDetail = apiResponse.data
 
+  const iconName = (agentDetail.icon as AgentIconName | null) ?? "Bot"
+
   return (
     <WorkspaceLayoutMainContainer>
       <div className="size-full overflow-y-auto py-16">
         <div className="mx-auto w-full max-w-2xl space-y-6 px-4">
           <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
-              <AgentIcon icon={agentDetail.icon as AgentIconName} className="text-sm sm:text-base" />
+              <AgentIcon icon={iconName} className="text-sm sm:text-base" />
               <h3 className="text-base font-medium sm:text-xl">{agentDetail.name}</h3>
             </div>
             <Button asChild className="shrink-0 gap-2" variant="primary">

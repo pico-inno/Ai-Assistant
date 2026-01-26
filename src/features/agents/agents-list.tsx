@@ -1,170 +1,107 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { 
-  Button,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
- } from "@mijn-ui/react"
-import { Plus, EllipsisVertical, Edit, Trash2} from "lucide-react"
-import { LayoutMobileDrawerClose } from "@/components/layout/layout"
-import {
-  WorkspaceLayoutPanelContainer,
-  WorkspaceLayoutPanelContent,
-  WorkspaceLayoutPanelHeader,
-  WorkspaceLayoutPanelTitle,
-} from "@/components/layout/workspace/workspace"
-import { useAgentList } from "./api/queries"
+import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@mijn-ui/react"
 import { AgentIcon, AgentIconName } from "./components/agent-icon"
+import { useAgentList } from "./api/queries"
 import { Agent } from "./types"
-import { title } from "process"
-import { useConfirmationStore } from "@/components/confirmation-dialog"
 
 const AgentsList = () => {
-  const { data: agents, isLoading, isError } = useAgentList()
-
-  const renderContent = () => {
+    const { data, isLoading, isError, refetch } = useAgentList()
+    const agents = data?.data ?? []
+    console.log("AgentsList agents:", agents)
     if (isLoading) {
-      return (
-        <div className="space-y-1">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-14 w-full animate-pulse rounded-md bg-muted" />
-          ))}
-        </div>
-      )
+        return (
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, index) => (
+                    <AgentCardSkeleton key={index} />
+                ))}
+            </div>
+        )
     }
 
     if (isError) {
-      return (
-        <div className="px-4 text-sm text-danger-emphasis">Something went wrong! Please try refreshing the page.</div>
-      )
+        return (
+            <div className="flex items-center justify-between rounded-md border border-dashed border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger-emphasis">
+                <div>
+                    <p className="font-semibold">Failed to load agents</p>
+                    <p className="text-xs text-danger-emphasis/80">Please check your connection and try again.</p>
+                </div>
+                <Button size="sm" onClick={() => refetch()}>
+                    Retry
+                </Button>
+            </div>
+        )
     }
 
-    if (!agents || agents.data?.length === 0) {
-      return <div className="p-2 text-sm text-secondary-foreground/70">{"No agents yet."}</div>
+    if (agents.length === 0) {
+        return (
+            <div className="rounded-md border border-dashed px-4 py-6 text-sm text-secondary-foreground">
+                No agents found. Create one to get started.
+            </div>
+        )
     }
 
     return (
-      <ul>
-        {agents.data.map((agent) => (
-          <li key={agent.id} className="text-sm">
-            <AgentsListItem agent={agent} />
-          </li>
-        ))}
-      </ul>
+        <section className="space-y-4">
+            <div className="flex items-center justify-center gap-3">
+                <div>
+                    <h2 className="text-lg font-semibold leading-tight text-foreground">Agents</h2>
+                    <p className="text-sm text-secondary-foreground">Pick an agent to start chatting.</p>
+                </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {agents.map((agent) => (
+                    <Link href={`/chat?agent=${agent.id}`} key={agent.id}>
+                        <AgentCard agent={agent} />
+                    </Link>
+                ))}
+            </div>
+        </section>
     )
-  }
+}
 
-  return (
-    <WorkspaceLayoutPanelContainer>
-      <WorkspaceLayoutPanelHeader>
-        <WorkspaceLayoutPanelTitle>AI Agents</WorkspaceLayoutPanelTitle>
-      </WorkspaceLayoutPanelHeader>
-      <div className="my-2 px-4 md:mt-0">
-        <LayoutMobileDrawerClose asChild>
-          <Button variant="default" asChild className="w-full justify-between text-secondary-foreground">
-            <Link href="/agents" className="truncate">
-              <span className="truncate">Create New Agent</span>
-              <Plus className="size-4 shrink-0" />
-            </Link>
-          </Button>
-        </LayoutMobileDrawerClose>
-      </div>
+const AgentCard = ({ agent }: { agent: Agent }) => {
+    const iconName = (agent.icon as AgentIconName | null) ?? "Bot"
+    return (
+        <Card className="h-full">
+            <CardHeader className="flex flex-row items-start gap-3">
+                <span className="flex size-12 items-center justify-center rounded-md bg-muted">
+                    <AgentIcon icon={iconName} />
+                </span>
+                <div className="space-y-1">
+                    <CardTitle className="text-base leading-tight">{agent.name}</CardTitle>
+                    <CardDescription className="line-clamp-2 text-sm">{agent.description}</CardDescription>
+                </div>
+            </CardHeader>
 
-      <WorkspaceLayoutPanelContent className="px-4">{renderContent()}</WorkspaceLayoutPanelContent>
-    </WorkspaceLayoutPanelContainer>
-  )
+            <CardFooter className="flex justify-end">
+                
+            </CardFooter>
+        </Card>
+    )
+}
+
+const AgentCardSkeleton = () => {
+    return (
+        <Card className="h-full animate-pulse">
+            <CardHeader className="flex flex-row items-start gap-3">
+                <span className="flex size-12 rounded-md bg-muted" />
+                <div className="flex-1 space-y-2">
+                    <div className="h-4 w-24 rounded bg-muted" />
+                    <div className="h-3 w-32 rounded bg-muted" />
+                </div>
+            </CardHeader>
+            <CardContent className="space-y-2">
+                <div className="h-3 w-full rounded bg-muted" />
+                <div className="h-3 w-3/5 rounded bg-muted" />
+            </CardContent>
+            <CardFooter>
+                <div className="h-9 w-20 rounded-md bg-muted" />
+            </CardFooter>
+        </Card>
+    )
 }
 
 export { AgentsList }
-
-const AgentsListItem = ({ agent }: { agent: Agent }) => {
-  const pathname = usePathname()
-  const router = useRouter()
-  const { closeConfirmation, openConfirmation } = useConfirmationStore()
-  const href = `/chat?agent=${agent.id}`
-
-  const onOpenEdit = (id: string) => {
-    router.push(`/agents/${id}`);
-  }
-
-  const onOpenDelete = (id: string, name: string) => {
-    openConfirmation({
-      title: "Delete Agent",
-      description: `Are you sure you want to delete this ${name}? This action cannot be undone.`,
-      cancelLabel: "Cancel",
-      actionLabel: "Delete",
-      actionState: "danger",
-      onAction: () => {
-        // Call delete API here
-        console.log(`Agent with id ${id} deleted.`);
-        closeConfirmation();
-      },
-      onCancel: () => {
-        closeConfirmation();
-      },
-    });
-  }
-
-  return (
-    <div className="group relative mb-2" data-state={'active'}>
-      <LayoutMobileDrawerClose asChild>
-        <Button
-          asChild
-          variant="ghost"
-          data-state={pathname === `/agents/${agent.id}` ? "active" : "inactive"}
-          className="h-14 w-full justify-start gap-2 truncate pr-12 py-2 text-sm text-secondary-foreground hover:bg-muted hover:text-foreground data-[state=active]:bg-muted">
-          <Link href={href} className="flex h-full w-full items-center gap-2 truncate">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted transition duration-300 group-hover:bg-secondary group-data-[state=active]:bg-secondary">
-              <AgentIcon icon={agent.icon as AgentIconName} />
-            </span>
-            <div className="w-full truncate">
-              <p className="truncate text-sm font-medium">{agent.name}</p>
-              <p className="truncate text-xs text-secondary-foreground">{agent.description}</p>
-            </div>
-          </Link>
-        </Button>
-      </LayoutMobileDrawerClose>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild unstyled>
-          <Button
-            iconOnly
-            size="md"
-            variant="ghost"
-            className="absolute right-0 top-1/2 z-10 -translate-y-1/2 bg-muted opacity-0 !ring-transparent !ring-offset-transparent hover:bg-background group-hover:opacity-100 data-[state=open]:opacity-100"
-            aria-label="More options">
-            <EllipsisVertical />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" sideOffset={0} className="transition-none">
-          <DropdownMenuGroup className="flex flex-col">
-            <DropdownMenuItem asChild
-              onSelect={(e) => {
-                onOpenEdit(agent.id)
-              }}>
-              <Button variant="ghost" size="sm" className="justify-start rounded-none text-secondary-foreground outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 hover:outline-none hover:ring-0 cursor-pointer">
-                <Edit className=" mr-1.5 size-4"/>
-                Edit
-              </Button>
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              asChild
-              onSelect={(e) => {
-                onOpenDelete(agent.id, agent.name)
-              }}>
-              <Button variant="ghost" size="sm" className="justify-start rounded-none text-secondary-foreground outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 hover:outline-none hover:ring-0 cursor-pointer">
-                <Trash2 className=" mr-1.5 size-4"/>
-                Delete
-              </Button>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  )
-}
